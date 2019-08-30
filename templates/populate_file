@@ -24,6 +24,10 @@ x='${data}'
 url=$(echo $x | jq -r '.url[0]')
 token=$(echo $x | jq -r '.token[0]')
 
+until $(curl --output /dev/null --silent --head --fail http://$${url}/api); do
+  printf '.'
+  sleep 5
+done
 
 %{ for k in enabled_profiles }
 %{ if k.version == "latest" }
