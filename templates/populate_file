@@ -24,7 +24,7 @@ x='${data}'
 url=$(echo $x | jq -r '.url[0]')
 token=$(echo $x | jq -r '.token[0]')
 
-until $(curl --output /dev/null --silent --head --fail http://$${url}/api); do
+until $(curl -ksf -o /dev/null "$${url}/api/v0/compliance/profiles/search"  -H "Content-Type: application/json" -H "api-token: $${token}" -d {}); do
   printf '.'
   sleep 5
 done

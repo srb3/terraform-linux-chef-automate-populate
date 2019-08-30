@@ -7,6 +7,7 @@ locals {
     data             = local.code,
     tmp_path         = var.tmp_path,
     jq_linux_url     = var.jq_linux_url,
+    override_sleep   = var.override_sleep,
     enabled_profiles = var.enabled_profiles
   })
 }

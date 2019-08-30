@@ -1,6 +1,6 @@
 # Overview
 This module will connect to any ssh enabled server and run commands against an automate server via curl.
-It expects that curl and wget are already installed. Currently the module only supports enabling profiles in chef automate. 
+It expects that curl and wget are already installed. Currently the module only supports enabling profiles in chef automate. This module can accept the output of the https://registry.terraform.io/modules/devoptimist/chef-automate/linux module by passing it jsonencoded to the autoamte_module variable. If this variable is set then you do not need to set either automate_url or automate_token.
 
 #### Supported platform families:
   * Debian
@@ -20,6 +20,7 @@ module "populate_chef_automate" {
   automate_url         = var.automate_url
   automate_token       = var.automate_token
   ssh_user_private_key = "~/.ssh/id_rsa"
+# automate_module      = jsonencode(module.chef_automate) # if using the devoptimist chef_automate module you do not need to specify automate_url or automate_token
 }
 ```
 
@@ -36,6 +37,7 @@ module "populate_chef_automate" {
 |automate_url|The url to a chef automate server|string||yes|
 |automate_token|The api token for a chef automate server|string||yes|
 |enabled_profiles|A list of Maps used to enable inspec profiles from the chef automate market place|list|[]|no|
+|automate_module|The jsonencoded output of the https://registry.terraform.io/modules/devoptimist/chef-automate/linux module. If you are not using this module then you need to specify automate_token and automate_url|string||no
 
 ## Map/List Variable examples (for tfvars file)
 
