@@ -1,0 +1,56 @@
+#!/bin/bash -x
+
+path="${tmp_path}/bin"
+if [[ ! -d $path ]]; then
+    sudo mkdir -p $path
+fi
+
+exec > ${tmp_path}/automate_server_populate.log 2>&1
+
+jq_path="${tmp_path}/bin/jq"
+
+if [[ ! -f $jq_path ]]; then
+  if hash curl; then
+    sudo curl -L -o $jq_path ${jq_linux_url} && sudo chmod 755 $jq_path
+  else
+    sudo wget -O $jq_path ${jq_linux_url} && sudo chmod 755 $jq_path
+  fi
+fi
+
+export PATH=$PATH:${tmp_path}/bin
+
+x='${data}'
+
+url=$(echo $x | jq -r '.url[0]')
+token=$(echo $x | jq -r '.token[0]')
+
+
+%{ for k in enabled_profiles }
+%{ if k.version == "latest" }
+profiles=($(curl -s -k "$${url}/api/v0/compliance/profiles/search" \
+  -H "Content-Type: application/json" \
+  -H "api-token: $${token}" \
+  -d '{"name":"${k.name}"}' | jq -r \
+  'del(.total) | .[][]  | "\(.name) \(.version)"' | sort -n -k 2 | tail -n1))
+
+curl -s -k "$${url}/api/v0/compliance/profiles?owner=${k.owner}" \
+  -H "Content-Type: application/json" \
+  -H "api-token: $${token}" \
+  -d @- << EOF
+{
+  "name":"$${profiles[0]}",
+  "version":"$${profiles[1]}"
+}
+EOF
+%{ else }
+curl -s -k "$${url}/api/v0/compliance/profiles?owner=${k.owner}" \
+  -H "Content-Type: application/json" \
+  -H "api-token: $${token}" \
+  -d @- << EOF
+{
+  "name":"${k.name}",
+  "version":"${k.version}"
+}
+EOF
+%{ endif }
+%{ endfor }
