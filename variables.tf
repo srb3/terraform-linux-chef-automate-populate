@@ -1,7 +1,7 @@
 ################## connection #####################
 
 variable "ip" {
-  description = "An ip addresses where we will stage pushes to the chef server (pushes include roles, environments, policyfiles, policygroups, cookbooks"
+  description = "An ip addresses where we will stage api calls to the automate server"
   type        = string
 }
 
@@ -37,7 +37,7 @@ variable "tmp_path" {
 }
 
 variable "populate_script_name" {
-  description = "The name to give the chef server populate script"
+  description = "The name to give the chef automate populate script"
   type        = string
   default     = "automate_server_populate.sh"
 }

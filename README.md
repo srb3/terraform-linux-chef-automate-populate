@@ -27,7 +27,7 @@ module "populate_chef_automate" {
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|----------|
-|ip|A list of ip addresses where we will install hab and run services|list|[]|no|
+|ip|The ip of an ssh enabled server|string|[]|no|
 |user_name|The ssh user name used to access the ip addresses provided|string||yes|
 |user_pass|The ssh user password used to access the ip addresses (either ssh_user_pass or ssh_user_private_key needs to be set)|string|""|no|
 |user_private_key|The ssh user key used to access the ip addresses (either ssh_user_pass or ssh_user_private_key needs to be set)|string|""|no|
