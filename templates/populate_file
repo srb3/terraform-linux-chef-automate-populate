@@ -5,6 +5,10 @@ exec > ${tmp_path}/automate_server_populate.log 2>&1
 
 jq_path="${tmp_path}/bin/jq"
 
+if [[ ! -d $jq_path ]]; then
+  mkdir -p $(dirname $jq_path)
+fi
+
 if [[ ! -f $jq_path ]]; then
   if hash curl; then
     sudo curl -L -o $jq_path ${jq_linux_url} && sudo chmod 755 $jq_path
