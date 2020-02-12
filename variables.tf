@@ -1,13 +1,30 @@
 ################## connection #####################
+variable "instance_count" {
+  description = "The number of instances to be created"
+  type        = number
+}
 
 variable "ip" {
-  description = "An ip addresses where we will stage api calls to the automate server"
+  description = "An ip address where we will stage api calls to the automate server"
   type        = string
+  default     = ""
+}
+
+variable "ips" {
+  description = "A list of ip addresses where we will stage api calls to the automate server"
+  type        = list
+  default     = []
 }
 
 variable "user_name" {
   description = "The ssh user name used to access the ip addresses provided" 
   type        = string
+}
+
+variable "user_names" {
+  description = "A list of ssh or winrm user names used to access the ip addresses provided"
+  type        = list(string)
+  default     = []
 }
 
 variable "user_pass" {
@@ -16,14 +33,31 @@ variable "user_pass" {
   default     = ""
 }
 
+variable "user_passes" {
+  description = "A list of ssh or winrm user passwords used to access the ip addresses (either user_pass or user_private_key needs to be set)"
+  type        = list(string)
+  default     = []
+}
+
 variable "user_private_key" {
   description = "The ssh user key used to access the ip addresses (either ssh_user_pass or ssh_user_private_key needs to be set)"
   type        = "string"
   default     = ""
 }
 
+variable "user_private_keys" {
+  description = "A list of user keys used to access the ip addresses (either user_pass/s or user_private_key/s needs to be set)"
+  type        = list(string)
+  default     = []
+}
+
 ############ misc ###############################
 
+variable "working_directory" {
+  description = "The path to use for the working directory"
+  type        = string
+  default     = "chef_automate_populate"
+}
 variable "jq_linux_url" {
   description = "A url to a jq binary to download, used in the install process"
   type        = string
@@ -63,7 +97,13 @@ variable "enabled_profiles" {
 }
 
 variable "automate_module" {
-  description = "The jsonencoded output of the https://registry.terraform.io/modules/devoptimist/chef-automate/linux module. If you are not using this module then you need to specify automate_token and automate_url"
+  description = "The jsonencoded output of the https://registry.terraform.io/modules/srb3/chef-automate/linux module. If you are not using this module then you need to specify automate_token and automate_url"
   type       = string
   default    = ""
+}
+
+variable "module_input" {
+  description = "The input from another module that this one depends on"
+  type        = string
+  default     = ""
 }

@@ -1,9 +1,5 @@
 #!/bin/bash -x
-
-path="${tmp_path}/bin"
-if [[ ! -d $path ]]; then
-    sudo mkdir -p $path
-fi
+# ${module_input}
 
 exec > ${tmp_path}/automate_server_populate.log 2>&1
 
@@ -19,27 +15,22 @@ fi
 
 export PATH=$PATH:${tmp_path}/bin
 
-x='${data}'
-
-url=$(echo $x | jq -r '.url[0]')
-token=$(echo $x | jq -r '.token[0]')
-
-until $(curl -ksf -o /dev/null "$${url}/api/v0/compliance/profiles/search"  -H "Content-Type: application/json" -H "api-token: $${token}" -d {}); do
+until $(curl -ksf -o /dev/null "${url}/api/v0/compliance/profiles/search"  -H "Content-Type: application/json" -H "api-token: ${token}" -d {}); do
   printf '.'
   sleep 5
 done
 
 %{ for k in enabled_profiles }
 %{ if k.version == "latest" }
-profiles=($(curl -s -k "$${url}/api/v0/compliance/profiles/search" \
+profiles=($(curl -s -k "${url}/api/v0/compliance/profiles/search" \
   -H "Content-Type: application/json" \
-  -H "api-token: $${token}" \
+  -H "api-token: ${token}" \
   -d '{"name":"${k.name}"}' | jq -r \
   'del(.total) | .[][]  | "\(.name) \(.version)"' | sort -n -k 2 | tail -n1))
 
-curl -s -k "$${url}/api/v0/compliance/profiles?owner=${k.owner}" \
+curl -s -k "${url}/api/v0/compliance/profiles?owner=${k.owner}" \
   -H "Content-Type: application/json" \
-  -H "api-token: $${token}" \
+  -H "api-token: ${token}" \
   -d @- << EOF
 {
   "name":"$${profiles[0]}",
@@ -47,9 +38,9 @@ curl -s -k "$${url}/api/v0/compliance/profiles?owner=${k.owner}" \
 }
 EOF
 %{ else }
-curl -s -k "$${url}/api/v0/compliance/profiles?owner=${k.owner}" \
+curl -s -k "${url}/api/v0/compliance/profiles?owner=${k.owner}" \
   -H "Content-Type: application/json" \
-  -H "api-token: $${token}" \
+  -H "api-token: ${token}" \
   -d @- << EOF
 {
   "name":"${k.name}",
