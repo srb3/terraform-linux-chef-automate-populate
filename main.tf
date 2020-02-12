@@ -8,8 +8,8 @@ locals {
 
   populate_script = [
     for n in range(var.instance_count) : templatefile("${path.module}/templates/populate_file", {
-      url              = jsondecode(local.code)["url"][n]
-      token            = jsondecode(local.code)["token"][n]
+      url              = length(jsondecode(local.code)["url"]) > 0 ? jsondecode(local.code)["url"][n] : ""
+      token            = length(jsondecode(local.code)["token"]) > 0 ? jsondecode(local.code)["token"][n] : ""
       module_input     = local.module_input,
       tmp_path         = local.tmp_path,
       jq_linux_url     = var.jq_linux_url,
