@@ -13,7 +13,7 @@ It expects that curl and wget are already installed. Currently the module only s
 
 module "populate_chef_automate" {
   source               = "devoptimist/chef-automate-populate/linux"
-  version              = "0.0.1"
+  version              = "0.0.9"
   ips                  = "172.16.0.23"
   ssh_user_name        = "ec2-user"
   enabled_profiles     = var.enabled_profiles # see  Map/List Variable examples

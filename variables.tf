@@ -41,7 +41,7 @@ variable "user_passes" {
 
 variable "user_private_key" {
   description = "The ssh user key used to access the ip addresses (either ssh_user_pass or ssh_user_private_key needs to be set)"
-  type        = "string"
+  type        = string
   default     = ""
 }
 
@@ -68,6 +68,12 @@ variable "tmp_path" {
   description = "The path to use as the upload destination for any executabl scripts that need to be run"
   type        = string
   default     = "/var/tmp"
+}
+
+variable "ds_script_name" {
+  description = "The name to give to the populate data source script"
+  type        = string
+  default     = "populate_data_source.sh"
 }
 
 variable "populate_script_name" {
@@ -102,8 +108,8 @@ variable "automate_module" {
   default    = ""
 }
 
-variable "module_input" {
-  description = "The input from another module that this one depends on"
-  type        = string
-  default     = ""
+variable "module_depends_on" {
+  description = "List of modules or resources this module depends on"
+  type        = list(any)
+  default     = []
 }
