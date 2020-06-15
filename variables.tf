@@ -104,7 +104,7 @@ variable "enabled_profiles" {
 
 variable "automate_module" {
   description = "The jsonencoded output of the https://registry.terraform.io/modules/srb3/chef-automate/linux module. If you are not using this module then you need to specify automate_token and automate_url"
-  type       = string
+  type       = any
   default    = ""
 }
 
