@@ -21,48 +21,61 @@ export PATH=$PATH:${tmp_path}/bin
 # wait for automate to start
 sleep 120
 
-echo making admin token via cli
-export TOKEN=`sudo chef-automate iam token create cli --admin`
+if [[ ! -f ${tmp_path}/.a2_admin_tmp ]]; then
+  echo "making admin token via cli"
+  export TOKEN=`sudo chef-automate iam token create cli --admin`
+else
+  echo "exporting existing token"
+  export TOKEN=$(cat ${tmp_path}/.a2_admin_tmp)
+fi
 
-echo "setting speciifc token value via API"
-
-curl -X POST \
+if [[ ! -f ${tmp_path}/.a2_ingest_tmp ]]; then
+  echo "setting specifc token value via API"
+  curl -X POST \
     ${url}/apis/iam/v2/tokens \
     --insecure \
     -H "api-token: $TOKEN" \
     -d '{"name":"dc-token","value": "${token}","description": "token for api ingest","active": true, "id": "dc-token"}'
 
-echo "setting API policies"
+  echo "setting API policies"
 
-curl -s \
-  ${url}/apis/iam/v2/policies/ingest-access/members:add \
-  --insecure \
-  -H "api-token: $TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"members":["token:dc-token"]}'
+  curl -s \
+    ${url}/apis/iam/v2/policies/ingest-access/members:add \
+    --insecure \
+    -H "api-token: $TOKEN" \
+    -H "Content-Type: application/json" \
+    -d '{"members":["token:dc-token"]}'
+fi
 
-echo $TOKEN > ${tmp_path}/.a2_tmp
+echo $TOKEN > ${tmp_path}/.a2_admin_tmp
+echo ${token} > ${tmp_path}/.a2_ingest_tmp
 
-echo "{\"token\": \"$(cat ${tmp_path}/.a2_tmp)\"}" > ${tmp_path}/.a2_token
+echo "{\"admin_token\": \"$(cat ${tmp_path}/.a2_admin_tmp)\", \"ingest_token\": \"$(cat ${tmp_path}/.a2_ingest_tmp)\"}" > ${tmp_path}/.a2_token
 
 echo -e "#!/bin/bash\ncat ${tmp_path}/.a2_token | ${tmp_path}/bin/jq" > ${ds_script_path}
 
 chmod +x ${ds_script_path}
 
-until $(curl -ksf -o /dev/null "${url}/api/v0/compliance/profiles/search"  -H "Content-Type: application/json" -H "api-token: $${TOKEN}" -d {}); do
+%{ if local_automate }
+URL="127.0.0.1"
+%{ else }
+URL=${url}
+%{ endif }
+
+until $(curl -ksf -o /dev/null "$${URL}/api/v0/compliance/profiles/search"  -H "Content-Type: application/json" -H "api-token: $${TOKEN}" -d {}); do
   printf '.'
   sleep 5
 done
 
 %{ for k in enabled_profiles }
 %{ if k.version == "latest" }
-profiles=($(curl -s -k "${url}/api/v0/compliance/profiles/search" \
+profiles=($(curl -s -k "$${URL}/api/v0/compliance/profiles/search" \
   -H "Content-Type: application/json" \
   -H "api-token: $${TOKEN}" \
   -d '{"name":"${k.name}"}' | jq -r \
   'del(.total) | .[][]  | "\(.name) \(.version)"' | sort -n -k 2 | tail -n1))
 
-curl -s -k "${url}/api/v0/compliance/profiles?owner=${k.owner}" \
+curl -s -k "$${URL}/api/v0/compliance/profiles?owner=${k.owner}" \
   -H "Content-Type: application/json" \
   -H "api-token: $${TOKEN}" \
   -d @- << EOF
@@ -72,7 +85,7 @@ curl -s -k "${url}/api/v0/compliance/profiles?owner=${k.owner}" \
 }
 EOF
 %{ else }
-curl -s -k "${url}/api/v0/compliance/profiles?owner=${k.owner}" \
+curl -s -k "$${URL}/api/v0/compliance/profiles?owner=${k.owner}" \
   -H "Content-Type: application/json" \
   -H "api-token: $${TOKEN}" \
   -d @- << EOF

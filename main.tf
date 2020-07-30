@@ -2,10 +2,9 @@ locals {
 
   tmp_path       = "${var.tmp_path}/${var.working_directory}" 
   ds_script_path = "${local.tmp_path}/${var.ds_script_name}"
-  module         = var.automate_module != "" ? jsonencode(var.automate_module) : ""
   # below is a workarround for this bug: https://github.com/hashicorp/terraform/issues/21917 
   # once it is fixed this can be fixed up
-  code           = local.module != "" ? local.module : jsonencode({"url" = [var.automate_url], "token" = [var.automate_token]})
+  code           = var.automate_module != "" ? var.automate_module : jsonencode({"url" = [var.automate_url], "token" = [var.automate_token]})
 
   populate_script = [
     for n in range(var.instance_count) : templatefile("${path.module}/templates/populate_file", {
@@ -14,7 +13,8 @@ locals {
       tmp_path         = local.tmp_path,
       jq_linux_url     = var.jq_linux_url,
       enabled_profiles = var.enabled_profiles,
-      ds_script_path   = local.ds_script_path
+      ds_script_path   = local.ds_script_path,
+      local_automate   = var.local_automate
     })
   ]
 }

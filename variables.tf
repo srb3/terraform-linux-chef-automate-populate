@@ -104,8 +104,14 @@ variable "enabled_profiles" {
 
 variable "automate_module" {
   description = "The jsonencoded output of the https://registry.terraform.io/modules/srb3/chef-automate/linux module. If you are not using this module then you need to specify automate_token and automate_url"
-  type       = any
+  type       = string
   default    = ""
+}
+
+variable "local_automate" {
+  description = "Set to false if this module will be connecting to a host that is not running chef automate"
+  type        = bool
+  default     = true
 }
 
 variable "module_depends_on" {
@@ -113,3 +119,5 @@ variable "module_depends_on" {
   type        = list(any)
   default     = []
 }
+
+
