@@ -1,9 +1,11 @@
-#!/bin/bash -x
+#!/bin/bash
+
+set -x
 
 exec > ${tmp_path}/automate_server_populate.log 2>&1
 
 %{ if local_automate }
-URL="127.0.0.1"
+URL="https://127.0.0.1"
 %{ else }
 URL=${url}
 %{ endif }
