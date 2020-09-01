@@ -59,10 +59,10 @@ data "external" "populate_data" {
   depends_on = [null_resource.populate_automate_server]
 
   query = {
-    ssh_user        = element(compact(concat([var.user_name], var.user_names)), count.index)
+    ssh_user        = length(compact(concat([var.user_name], var.user_names))) > 0 ? element(compact(concat([var.user_name], var.user_names)), count.index) : null
     ssh_key         = length(compact(concat([var.user_private_key], var.user_private_keys))) > 0 ? element(compact(concat([var.user_private_key], var.user_private_keys)), count.index) : null
     ssh_pass        = length(compact(concat([var.user_pass], var.user_passes))) > 0 ? element(compact(concat([var.user_pass], var.user_passes)), count.index) : null
-    target_ip       = element(compact(concat([var.ip], var.ips)), count.index)
+    target_ip       = length(compact(concat([var.ip], var.ips))) > 0 ? element(compact(concat([var.ip], var.ips)), count.index) : null
     target_script   = local.ds_script_path
   }
 }
