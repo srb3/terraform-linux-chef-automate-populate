@@ -2,6 +2,13 @@
 
 exec > ${tmp_path}/automate_server_populate.log 2>&1
 
+%{ if local_automate }
+URL="127.0.0.1"
+%{ else }
+URL=${url}
+%{ endif }
+
+
 jq_path="${tmp_path}/bin/jq"
 
 if [[ ! -d $jq_path ]]; then
@@ -32,7 +39,7 @@ fi
 if [[ ! -f ${tmp_path}/.a2_ingest_tmp ]]; then
   echo "setting specifc token value via API"
   curl -X POST \
-    ${url}/apis/iam/v2/tokens \
+    $${URL}/apis/iam/v2/tokens \
     --insecure \
     -H "api-token: $TOKEN" \
     -d '{"name":"dc-token","value": "${token}","description": "token for api ingest","active": true, "id": "dc-token"}'
@@ -40,7 +47,7 @@ if [[ ! -f ${tmp_path}/.a2_ingest_tmp ]]; then
   echo "setting API policies"
 
   curl -s \
-    ${url}/apis/iam/v2/policies/ingest-access/members:add \
+    $${URL}/apis/iam/v2/policies/ingest-access/members:add \
     --insecure \
     -H "api-token: $TOKEN" \
     -H "Content-Type: application/json" \
@@ -55,12 +62,6 @@ echo "{\"admin_token\": \"$(cat ${tmp_path}/.a2_admin_tmp)\", \"ingest_token\": 
 echo -e "#!/bin/bash\ncat ${tmp_path}/.a2_token | ${tmp_path}/bin/jq" > ${ds_script_path}
 
 chmod +x ${ds_script_path}
-
-%{ if local_automate }
-URL="127.0.0.1"
-%{ else }
-URL=${url}
-%{ endif }
 
 until $(curl -ksf -o /dev/null "$${URL}/api/v0/compliance/profiles/search"  -H "Content-Type: application/json" -H "api-token: $${TOKEN}" -d {}); do
   printf '.'
