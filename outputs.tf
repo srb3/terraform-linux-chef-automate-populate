@@ -3,5 +3,5 @@ output "server_public_ip" {
 }
 
 output "ingest_token" {
-  value = data.external.populate_data[*].result["token"]
+  value = data.external.populate_data[*].result["ingest_token"]
 }
