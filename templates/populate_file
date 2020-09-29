@@ -4,6 +4,14 @@ set -x
 
 exec > ${tmp_path}/automate_server_populate.log 2>&1
 
+%{ if proxy_string != "" }
+  export https_proxy=${proxy_string}
+  export http_proxy=${proxy_string}
+%{ endif }
+%{ if no_proxy_string != "" }
+  export no_proxy=${no_proxy_string}
+%{ endif }
+
 %{ if local_automate }
 URL="https://127.0.0.1"
 %{ else }
@@ -19,9 +27,9 @@ fi
 
 if [[ ! -f $jq_path ]]; then
   if hash curl; then
-    sudo curl -L -o $jq_path ${jq_linux_url} && sudo chmod 755 $jq_path
+    sudo -E curl -L -o $jq_path ${jq_linux_url} && sudo chmod 755 $jq_path
   else
-    sudo wget -O $jq_path ${jq_linux_url} && sudo chmod 755 $jq_path
+    sudo -E wget -O $jq_path ${jq_linux_url} && sudo chmod 755 $jq_path
   fi
 fi
 
